@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Light and dark mode variables */
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -14,18 +15,41 @@
   }
 }
 
+/* Apply basic body styles */
 body {
   color: var(--foreground);
-  background: var(--background);
+  background-color: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Grainy texture utility */
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.1) 1%, transparent 1%);
+  background-size: 2px 2px;
+  opacity: 0.15; /* Adjust opacity as needed */
+  z-index: 0;
+}
+
+main {
+  position: relative;
+  z-index: 1;
+}
+
+/* Tailwind custom utilities */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 }
 
+/* Tailwind color and theme settings */
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -54,6 +78,7 @@ body {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;

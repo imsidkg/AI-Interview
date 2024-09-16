@@ -1,10 +1,16 @@
+import { Button } from '@/components/ui/button'
 import React from 'react'
 
 type Props = {}
 
 const AddNewInterview = (props: Props) => {
   return (
-    <div>AddNewInterview</div>
+    <div>
+        <Button>
+            <
+        Add new
+        </Button>
+    </div>
   )
 }
 

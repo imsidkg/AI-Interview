@@ -20,10 +20,10 @@ const Header: React.FC = () => {
 </div>
 
       <ul className='hidden md:flex gap-6'>
-        <li className={`transition-all cursor-pointer hover:text-gray-500 ${path=='/dashboard' && 'text-gray-500'}`}>Dashboard</li>
-        <li className={`transition-all cursor-pointer  hover:text-gray-500 ${path=='/dashboard/questions' && 'text-primary text-gray-500'}`}>Questions</li>
-        <li className={`transition-all cursor-pointer  hover:text-gray-500 ${path=='/dashboard/upgrade' && 'text-primary text-gray-500'}`}>Upgrade</li>
-        <li className={`transition-all cursor-pointer e hover:text-gray-500 ${path=='/dashboard/how' && 'text-primary text-gray-500'}`}>How it works?</li>
+        <li className={`transition-all cursor-pointer hover:text-gray-500 ${path=='/dashboard' && 'text-blue-300'}`}>Dashboard</li>
+        <li className={`transition-all cursor-pointer  hover:text-gray-500 ${path=='/dashboard/questions' && 'text-primary text-blue-300'}`}>Questions</li>
+        <li className={`transition-all cursor-pointer  hover:text-gray-500 ${path=='/dashboard/upgrade' && 'text-primary text-blue-300'}`}>Upgrade</li>
+        <li className={`transition-all cursor-pointer e hover:text-gray-500 ${path=='/dashboard/how' && 'text-primary text-blue-300'}`}>How it works?</li>
       </ul>
 
       <UserButton/>

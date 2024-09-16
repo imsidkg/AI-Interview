@@ -15,6 +15,13 @@
       "when": 1726506246887,
       "tag": "0001_condemned_nick_fury",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1726522830912,
+      "tag": "0002_fresh_mandrill",
+      "breakpoints": true
     }
   ]
 }

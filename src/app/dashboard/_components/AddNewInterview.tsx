@@ -13,6 +13,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { chatSession } from "@/utils/gemini";
 import { Loader2 } from "lucide-react";
+import uuid from 'react-uuid';
+import { useUser } from "@clerk/nextjs";
+import moment from "moment";
+
+import { MockInterview } from "@/drizzle/schema";
+import { db } from "@/drizzle/db";
 
 type Props = {};
 
@@ -24,6 +30,7 @@ const AddNewInterview = (props: Props) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [jsonResponse, setJsonResponse] = useState([]);
 
+  const {user} = useUser()
   const onSubmit = async (e: any) => {
     e.preventDefault();
     setLoading(true);
@@ -58,6 +65,19 @@ const AddNewInterview = (props: Props) => {
         );
         setJsonResponse(mockResponse);
         const jsonString = JSON.stringify(mockResponse);
+        const res = await db.insert(MockInterview)
+        .values({
+          mockId: uuid(),
+          jsonMockResp: jsonString,
+          jobPosition: jobPosition,
+          jobDesc: jobDescription,  // Ensure property names match your schema
+          jobExperience: jobExperience,
+          createdBy: user?.primaryEmailAddress?.emailAddress || "",  // Handle potential undefined
+          createdAt: moment().format('YYYY-MM-DD'),  // Use a standard date format
+        }).returning({ mockId: MockInterview.mockId });
+
+          setLoading(false);
+         
       } else {
         console.error("Error: Unable to extract JSON response");
       }

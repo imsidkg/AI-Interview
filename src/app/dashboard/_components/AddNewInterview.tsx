@@ -19,6 +19,7 @@ import moment from "moment";
 
 import { MockInterview } from "@/drizzle/schema";
 import { db } from "@/drizzle/db";
+import { useRouter } from "next/navigation";
 
 type Props = {};
 
@@ -29,7 +30,7 @@ const AddNewInterview = (props: Props) => {
   const [jobExperience, setJobExperience] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [jsonResponse, setJsonResponse] = useState([]);
-
+  const router = useRouter();
   const {user} = useUser()
   const onSubmit = async (e: any) => {
     e.preventDefault();
@@ -77,6 +78,8 @@ const AddNewInterview = (props: Props) => {
         }).returning({ mockId: MockInterview.mockId });
 
           setLoading(false);
+          router.push(`dashboard/interview/${res[0]?.mockId}`)
+
          
       } else {
         console.error("Error: Unable to extract JSON response");
@@ -97,7 +100,7 @@ const AddNewInterview = (props: Props) => {
         >
           + Add new
         </h1>
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog open={isOpen} onOpenChange={setIsOpen} >
           <DialogContent className="max-w-md ml-7">
             {" "}
             {/* Adjust width and center dialog */}

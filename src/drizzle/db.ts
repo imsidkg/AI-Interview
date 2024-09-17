@@ -1,5 +1,5 @@
-import 'dotenv/config'
-
+// import 'dotenv/config
+'use server'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 

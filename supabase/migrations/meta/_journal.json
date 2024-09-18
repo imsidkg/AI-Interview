@@ -22,6 +22,20 @@
       "when": 1726522830912,
       "tag": "0002_fresh_mandrill",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1726612976875,
+      "tag": "0003_mute_spot",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1726613517126,
+      "tag": "0004_minor_white_queen",
+      "breakpoints": true
     }
   ]
 }

@@ -30,8 +30,9 @@ const page = () => {
           const errorData = await res.json()
           throw new Error(errorData.error || 'Failed to fetch interview details')
         }
-
+        
         const data = await res.json()
+       
         setInterviewDetails(data)
       } catch (error: any) {
         console.error('Error fetching details', error.message)

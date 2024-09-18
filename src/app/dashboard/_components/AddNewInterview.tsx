@@ -48,6 +48,7 @@ const AddNewInterview = () => {
 
       const data = await res.json();
       console.log('Data:', data);
+      setLoading(false)
 
       if (data.success) {
         router.push(`/dashboard/interview/${data.mockId}`);

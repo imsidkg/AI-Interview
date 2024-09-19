@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Interview not found" }, { status: 404 });
     }
  
-    console.log("ehrerheeeeeee" , result)
+   
     return NextResponse.json(result[0], { status: 200 });
   } catch (error: any) {
     console.error("Error fetching interview data:", error.message, error.stack);

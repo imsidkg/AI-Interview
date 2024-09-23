@@ -9,6 +9,7 @@ import { Mic, StopCircle } from "lucide-react";
 
 import { useUser } from "@clerk/nextjs";
 import moment from "moment";
+import { chatSession } from "@/utils/gemini";
 
 const RecordAnswerSection = ({
   mockInterviewQuestion,

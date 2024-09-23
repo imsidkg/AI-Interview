@@ -10,6 +10,9 @@ import { Mic, StopCircle } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import moment from "moment";
 import { chatSession } from "@/utils/gemini";
+import { db } from "@/db";
+import { UserAnswer } from "@/db/schema";
+import { toast } from "sonner";
 
 const RecordAnswerSection = ({
   mockInterviewQuestion,
@@ -57,54 +60,58 @@ const RecordAnswerSection = ({
   };
 
   const UpdateUserAnswer = async () => {
-    console.log(userAnswer, "########");
     setLoading(true);
-    const feedbackPrompt =
-      "Question:" +
-      mockInterviewQuestion[activeQuestionIndex]?.question +
-      ", User Answer:" +
-      userAnswer +
-      ",Depends on question and user answer for given interview question " +
-      " please give use rating for answer and feedback as area of improvement if any" +
-      " in just 3 to 5 lines to improve it in JSON format with rating field and feedback field";
-    console.log(
-      "🚀 ~ file: RecordAnswerSection.jsx:38 ~ SaveUserAnswer ~ feedbackPrompt:",
-      feedbackPrompt
-    );
-    const result = await chatSession.sendMessage(feedbackPrompt);
-    console.log(
-      "🚀 ~ file: RecordAnswerSection.jsx:46 ~ SaveUserAnswer ~ result:",
-      result
-    );
-    const mockJsonResp = result.response
-      .text()
-      .replace("```json", "")
-      .replace("```", "");
-
-    console.log(
-      "🚀 ~ file: RecordAnswerSection.jsx:47 ~ SaveUserAnswer ~ mockJsonResp:",
-      mockJsonResp
-    );
-    const JsonfeedbackResp = JSON.parse(mockJsonResp);
-    const resp = await db.insert(UserAnswer).values({
-      mockIdRef: interviewData?.mockId,
-      question: mockInterviewQuestion[activeQuestionIndex]?.question,
-      correctAns: mockInterviewQuestion[activeQuestionIndex]?.answer,
-      userAns: userAnswer,
-      feedback: JsonfeedbackResp?.feedback,
-      rating: JsonfeedbackResp?.rating,
-      userEmail: user?.primaryEmailAddress?.emailAddress,
-      createdAt: moment().format("DD-MM-YYYY"),
-    });
-
-    if (resp) {
-      toast("User Answer recorded successfully");
-      setUserAnswer("");
-      setResults([]);
+    try {
+      const feedbackPrompt =
+        "Question:" +
+        mockInterviewQuestion[activeQuestionIndex]?.question +
+        ", User Answer:" +
+        userAnswer +
+        ",Depends on question and user answer for given interview question " +
+        " please give use rating for answer and feedback as area of improvement if any" +
+        " in just 3 to 5 lines to improve it in JSON format with rating field and feedback field";
+      
+      const result = await chatSession.sendMessage(feedbackPrompt);
+      const mockJsonResp = result.response
+        .text()
+        .replace("```json", "")
+        .replace("```", "");
+      const JsonfeedbackResp = JSON.parse(mockJsonResp);
+  
+      
+      const response = await fetch("/api/saveAnswer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mockIdRef: interviewData?.mockId,
+          question: mockInterviewQuestion[activeQuestionIndex]?.question,
+          correctAns: mockInterviewQuestion[activeQuestionIndex]?.answer,
+          userAns: userAnswer,
+          feedback: JsonfeedbackResp?.feedback,
+          rating: JsonfeedbackResp?.rating,
+          userEmail: user?.primaryEmailAddress?.emailAddress,
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (data.success) {
+        toast("User Answer recorded successfully");
+        setUserAnswer(""); 
+        setResults([]);    
+      } else {
+        toast("Error recording your answer. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error recording answer:", error);
+      toast("An error occurred while saving the answer.");
+    } finally {
+      setLoading(false);
     }
-    setResults([]);
-    setLoading(false);
   };
+  
 
   if (error) return <p>Web Speech API is not available in this browser 🤷‍</p>;
   return (

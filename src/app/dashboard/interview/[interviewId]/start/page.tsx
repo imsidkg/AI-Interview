@@ -2,6 +2,9 @@
 import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import QuestionSection from './_components/QuestionSection';
+import RecordAnswerSection from './_components/RecordAnswerSection';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 type InterviewDetails = {
   mockId: string;
@@ -56,11 +59,27 @@ const Page = () => {
 
   return (
     <div>
-      {error ? (
-        <p>{error}</p>
-      ) : (
-        <QuestionSection mockInterviewQuestion={mockInterviewQuestion} activeQuestionIndex={activeQuestionIndex} />
-      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        {/* Questions */}
+        <QuestionSection
+          mockInterviewQuestion={mockInterviewQuestion}
+          activeQuestionIndex={activeQuestionIndex}
+        />
+        {/* video or audion recording */}
+        <RecordAnswerSection
+          mockInterviewQuestion={mockInterviewQuestion}
+          activeQuestionIndex={activeQuestionIndex}
+          interviewDetails={interviewDetails}
+        />
+      </div>
+      <div className="flex justify-end gap-6">
+        {activeQuestionIndex > 0 && <Button onClick={()=>setActiveQuestionIndex(activeQuestionIndex-1)}>Previous Question</Button>}
+        {activeQuestionIndex!=mockInterviewQuestion?.length-1 && <Button onClick={()=>setActiveQuestionIndex(activeQuestionIndex+1)}>Next Question</Button>}
+        {activeQuestionIndex==mockInterviewQuestion?.length-1 &&
+        <Link href={'/dashboard/interview/'+interviewDetails?.mockId+'/feedback'}>
+         <Button>End Interview</Button>
+         </Link>}
+      </div>
     </div>
   );
 };

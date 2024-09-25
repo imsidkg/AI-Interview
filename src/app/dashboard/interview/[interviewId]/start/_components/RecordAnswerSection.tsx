@@ -1,6 +1,7 @@
 "use client";
-import { Button } from "@/components/ui/button";
+
 import React, { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import useSpeechToText from "react-hook-speech-to-text";
 import { Mic, StopCircle } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
@@ -35,11 +36,11 @@ type Props = {
   interviewDetails: InterviewDetails | null;
 };
 
-const RecordAnswerSection = ({
+const RecordAnswerSection: React.FC<Props> = ({
   mockInterviewQuestion,
   activeQuestionIndex,
   interviewDetails,
-}: Props) => {
+}) => {
   const [userAnswer, setUserAnswer] = useState("");
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
@@ -56,7 +57,6 @@ const RecordAnswerSection = ({
     useLegacyResults: false,
   });
 
-  // Log all speech recognition results
   useEffect(() => {
     console.log("Results received:", results);
     results.forEach((result) => {
@@ -71,6 +71,13 @@ const RecordAnswerSection = ({
       UpdateUserAnswer();
     }
   }, [userAnswer]);
+
+  useEffect(() => {
+    if (!user) {
+      console.error("User not authenticated");
+      toast("Please sign in to record answers.");
+    }
+  }, [user]);
 
   const handleUserMediaError = (error: string | DOMException) => {
     if (typeof error === "string") {
@@ -96,8 +103,20 @@ const RecordAnswerSection = ({
     }
   };
 
+  const validateData = (data: any) => {
+    const requiredFields = ['mockIdRef', 'question', 'correctAns', 'userAns', 'feedback', 'rating', 'userEmail'];
+    for (const field of requiredFields) {
+      if (!data[field]) {
+        console.error(`Missing required field: ${field}`);
+        return false;
+      }
+    }
+    return true;
+  };
+
   const UpdateUserAnswer = async () => {
     if (!interviewDetails || !mockInterviewQuestion[activeQuestionIndex]) {
+      console.error("Missing interview details or question");
       toast("Interview details or question not available.");
       return;
     }
@@ -120,29 +139,43 @@ const RecordAnswerSection = ({
         .replace("```", "");
       const JsonfeedbackResp = JSON.parse(mockJsonResp);
 
-      const response = await fetch("/api/saveUserAnswer", {
+      const dataToSend = {
+        mockIdRef: interviewDetails.mockId,
+        question: mockInterviewQuestion[activeQuestionIndex].question,
+        correctAns: mockInterviewQuestion[activeQuestionIndex].answer,
+        userAns: userAnswer,
+        feedback: JsonfeedbackResp?.feedback,
+        rating: JsonfeedbackResp?.rating,
+        userEmail: user?.primaryEmailAddress?.emailAddress,
+      };
+
+      if (!validateData(dataToSend)) {
+        toast("Error: Missing required data. Please try again.");
+        return;
+      }
+
+      const response = await fetch("/api/x", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          mockIdRef: interviewDetails.mockId,
-          question: mockInterviewQuestion[activeQuestionIndex].question,
-          correctAns: mockInterviewQuestion[activeQuestionIndex].answer,
-          userAns: userAnswer,
-          feedback: JsonfeedbackResp?.feedback,
-          rating: JsonfeedbackResp?.rating,
-          userEmail: user?.primaryEmailAddress?.emailAddress,
-        }),
+        credentials: 'include',
+        body: JSON.stringify(dataToSend),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
+      console.log("API response:", data);
 
       if (data.success) {
         toast("User Answer recorded successfully");
         setUserAnswer("");
         setResults([]);
       } else {
+        console.error("API error:", data.message);
         toast("Error recording your answer. Please try again.");
       }
     } catch (error) {

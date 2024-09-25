@@ -9,6 +9,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
   const user = await currentUser();
   try {
     const body = await req.json();
+    console.log("Received body:", body); // Log incoming data
 
     const {
       mockIdRef,
@@ -30,13 +31,15 @@ export async function POST(req: NextRequest, res: NextResponse) {
       userEmail,
     });
 
-    if(resp) {
-        return NextResponse.json({ success: true, message: "User Answer recorded successfully" });
-    }else {
-        return NextResponse.json({ success: false, message: "Error recording the answer" });
-      }
-  } catch (error:any) {
-    console.error("Error saving user answer:", error);
+    console.log("Insert response:", resp); // Log the database insert result
+
+    if (resp) {
+      return NextResponse.json({ success: true, message: "User Answer recorded successfully" });
+    } else {
+      return NextResponse.json({ success: false, message: "Error recording the answer" });
+    }
+  } catch (error: any) {
+    console.error("Error saving user answer:", error); // Log errors
     return NextResponse.json({ success: false, error: error.message });
   }
 }

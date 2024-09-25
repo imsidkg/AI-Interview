@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Toaster } from 'sonner';
 import "./globals.css";
 import { Roboto_Mono } from 'next/font/google';
 import {
@@ -25,9 +26,11 @@ export default function RootLayout({
       <ClerkProvider>
     <html lang="en">
 
+
       <body className={robotoMono.className}>{children}
-        
+          <Toaster/>
       </body>
+
     </html>
       </ClerkProvider>
   );

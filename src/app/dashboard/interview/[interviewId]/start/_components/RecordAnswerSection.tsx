@@ -1,17 +1,12 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import Webcam from "react-webcam";
 import useSpeechToText from "react-hook-speech-to-text";
 import { Mic, StopCircle } from "lucide-react";
-
 import { useUser } from "@clerk/nextjs";
-import moment from "moment";
 import { chatSession } from "@/utils/gemini";
-import { db } from "@/db";
-import { UserAnswer } from "@/db/schema";
 import { toast } from "sonner";
+import Webcam from "react-webcam";
 
 type QuestionAnswer = {
   question: string;
@@ -26,6 +21,12 @@ type InterviewDetails = {
   createdAt: string;
   createdBy: string;
   jsonMockResp: string;
+};
+
+const videoConstraints = {
+  width: 720,
+  height: 360,
+  facingMode: "user",
 };
 
 type Props = {
@@ -55,11 +56,12 @@ const RecordAnswerSection = ({
     useLegacyResults: false,
   });
 
+  // Log all speech recognition results
   useEffect(() => {
+    console.log("Results received:", results);
     results.forEach((result) => {
       if (typeof result !== "string" && result.transcript) {
         setUserAnswer((prevAns) => prevAns + result.transcript);
-        console.log(userAnswer);
       }
     });
   }, [results]);
@@ -70,25 +72,22 @@ const RecordAnswerSection = ({
     }
   }, [userAnswer]);
 
-  useEffect(() => {
-    if (isRecording) {
-      stopSpeechToText();
+  const handleUserMediaError = (error: string | DOMException) => {
+    if (typeof error === "string") {
+      console.log("Webcam access error", error);
+      toast("Unable to access webcam, please check permission");
+    } else if (error instanceof DOMException) {
+      console.error("DOMException occurred:", error.message);
+      toast("A browser error occurred while accessing your webcam.");
     }
-
-    const startNewRecording = () => {
-      if (!isRecording) {
-        setTimeout(() => {
-          startSpeechToText();
-        }, 100);
-      }
-    };
-  }, [activeQuestionIndex]);
+  };
 
   const StartStopRecording = async () => {
     if (isRecording) {
       stopSpeechToText();
     } else {
       try {
+        console.log("Starting speech-to-text recording...");
         startSpeechToText();
       } catch (error) {
         console.error("Speech recognition start error:", error);
@@ -98,11 +97,16 @@ const RecordAnswerSection = ({
   };
 
   const UpdateUserAnswer = async () => {
+    if (!interviewDetails || !mockInterviewQuestion[activeQuestionIndex]) {
+      toast("Interview details or question not available.");
+      return;
+    }
+
     setLoading(true);
     try {
       const feedbackPrompt =
         "Question:" +
-        mockInterviewQuestion[activeQuestionIndex]?.question +
+        mockInterviewQuestion[activeQuestionIndex].question +
         ", User Answer:" +
         userAnswer +
         ",Depends on question and user answer for given interview question " +
@@ -116,15 +120,15 @@ const RecordAnswerSection = ({
         .replace("```", "");
       const JsonfeedbackResp = JSON.parse(mockJsonResp);
 
-      const response = await fetch("/api/saveAnswer", {
+      const response = await fetch("/api/saveUserAnswer", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          mockIdRef: interviewDetails?.mockId,
-          question: mockInterviewQuestion[activeQuestionIndex]?.question,
-          correctAns: mockInterviewQuestion[activeQuestionIndex]?.answer,
+          mockIdRef: interviewDetails.mockId,
+          question: mockInterviewQuestion[activeQuestionIndex].question,
+          correctAns: mockInterviewQuestion[activeQuestionIndex].answer,
           userAns: userAnswer,
           feedback: JsonfeedbackResp?.feedback,
           rating: JsonfeedbackResp?.rating,
@@ -137,7 +141,6 @@ const RecordAnswerSection = ({
       if (data.success) {
         toast("User Answer recorded successfully");
         setUserAnswer("");
-
         setResults([]);
       } else {
         toast("Error recording your answer. Please try again.");
@@ -151,20 +154,18 @@ const RecordAnswerSection = ({
   };
 
   if (error) return <p>Web Speech API is not available in this browser 🤷‍</p>;
+
   return (
-    <div className="flex justify-cente items-center flex-col">
+    <div className="flex justify-center items-center flex-col">
       <div className="flex flex-col my-20 justify-center items-center bg-black rounded-lg p-5">
-        {/* <Image
-          src={"/webcam.png"}
-          width={200}
-          height={200}
-          className="absolute"
-          alt="webcam"
-          priority
-        /> */}
         <Webcam
-          style={{ height: 300, width: "100%", zIndex: 10 }}
+          audio={false}
+          width={540}
+          height={360}
           mirrored={true}
+          screenshotFormat="image/jpeg"
+          videoConstraints={videoConstraints}
+          onUserMediaError={handleUserMediaError}
         />
       </div>
       <Button
@@ -183,9 +184,6 @@ const RecordAnswerSection = ({
           </h2>
         )}
       </Button>
-      {/* <Button onClick={() => console.log("------", userAnswer)}>
-        Show User Answer
-      </Button> */}
     </div>
   );
 };

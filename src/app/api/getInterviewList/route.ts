@@ -1,23 +1,21 @@
-// pages/api/interviewList.ts (or /app/api/interviewList/route.ts for the App Router)
-
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextResponse } from "next/server";
 import { clerkClient, getAuth } from "@clerk/nextjs/server"; // Clerk for authentication
 import { db } from "@/db/index"; // Import your database instance
 import { MockInterview } from "@/db/schema"; // Your schema for MockInterview
 import { eq, desc } from "drizzle-orm"; // ORM helpers for querying
+import { NextApiRequest } from "next";
 
-// API Route Handler
-export default async function GET(req: NextApiRequest, res: NextApiResponse) {
+export async function GET(req: NextApiRequest) {
   try {
     const { userId } = getAuth(req);
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = await clerkClient.users.getUser(userId);
+    const user = await clerkClient().users.getUser(userId);
     const email = user?.primaryEmailAddress?.emailAddress;
     if (!email) {
-      return res.status(400).json({ error: "No primary email found" });
+      return NextResponse.json({ error: "No primary email found" }, { status: 400 });
     }
 
     const result = await db
@@ -25,9 +23,10 @@ export default async function GET(req: NextApiRequest, res: NextApiResponse) {
       .from(MockInterview)
       .where(eq(MockInterview.createdBy, email))
       .orderBy(desc(MockInterview.id));
-    return res.status(200).json(result);
-  } catch (error: any) {
+
+    return NextResponse.json(result);
+  } catch (error:any) {
     console.error("Error fetching interview list:", error.message);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

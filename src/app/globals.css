@@ -90,3 +90,13 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .pop-animation {
+    @apply transition-transform transform;
+  }
+
+  .pop-animation:hover {
+    @apply scale-105; /* Adjust the scale as needed */
+  }
+}

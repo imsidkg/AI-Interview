@@ -154,7 +154,7 @@ const RecordAnswerSection: React.FC<Props> = ({
         return;
       }
 
-      const response = await fetch("/api/x", {
+      const response = await fetch("/api/saveUserAnswer", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

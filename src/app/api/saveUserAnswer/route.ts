@@ -9,7 +9,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
   const user = await currentUser();
   try {
     const body = await req.json();
-    console.log("Received body:", body); // Log incoming data
+    console.log("Received body:", body); 
 
     const {
       mockIdRef,

@@ -1,3 +1,40 @@
+// import type { Metadata } from "next";
+// import localFont from "next/font/local";
+// import { Toaster } from 'sonner';
+// import "./globals.css";
+// import { Roboto_Mono } from 'next/font/google';
+// import {
+//   ClerkProvider,
+//   SignInButton,
+//   SignedIn,
+//   SignedOut,
+//   UserButton
+// } from '@clerk/nextjs';
+
+// const robotoMono = Roboto_Mono({
+//   subsets: ['latin'], 
+//   weight: ['400', '700'], 
+// });
+
+// export default function RootLayout({
+//   children,
+// }: Readonly<{
+//   children: React.ReactNode;
+// }>) {
+//   return (
+//     <ClerkProvider>
+//       <html lang="en">
+//         <body className={robotoMono.className}>
+//           {children}
+//           <Toaster />
+//         </body>
+//       </html>
+//     </ClerkProvider>
+//   );
+// }
+
+
+
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Toaster } from 'sonner';
@@ -9,13 +46,13 @@ import {
   SignedIn,
   SignedOut,
   UserButton
-} from '@clerk/nextjs'
+} from '@clerk/nextjs';
+import Head from 'next/head';
 
 const robotoMono = Roboto_Mono({
   subsets: ['latin'], 
-  weight: ['400', '700'], 
+  weight: ['400', '700'] as const, 
 });
-
 
 export default function RootLayout({
   children,
@@ -23,15 +60,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-      <ClerkProvider>
-    <html lang="en">
-
-
-      <body className={robotoMono.className}>{children}
-          <Toaster/>
-      </body>
-
-    </html>
-      </ClerkProvider>
+    <ClerkProvider>
+      <html lang="en">
+        
+        <body className={robotoMono.className}>
+          {children}
+          <Toaster />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

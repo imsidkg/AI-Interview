@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextResponse,NextRequest } from "next/server";
 import { clerkClient, getAuth } from "@clerk/nextjs/server"; // Clerk for authentication
 import { db } from "@/db/index"; // Import your database instance
 import { MockInterview } from "@/db/schema"; // Your schema for MockInterview
 import { eq, desc } from "drizzle-orm"; // ORM helpers for querying
-import { NextApiRequest } from "next";
 
-export async function GET(req: NextApiRequest) {
+
+export async function GET(req: NextRequest) {
   try {
     const { userId } = getAuth(req);
     if (!userId) {

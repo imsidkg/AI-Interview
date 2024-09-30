@@ -6,6 +6,7 @@ import RecordAnswerSection from './_components/RecordAnswerSection';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import Loader from '@/components/Loader'
 
 type InterviewDetails = {
   id: number;
@@ -94,7 +95,7 @@ const Page = () => {
   console.log("Component state:", { isLoading, error, interviewDetails, mockInterviewQuestions });
 
   if (isLoading) {
-    return <div>Loading interview details...</div>;
+    return <div><Loader/></div>;
   }
 
   if (error) {

@@ -5,6 +5,7 @@ import { Lightbulb, WebcamIcon } from "lucide-react";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Webcam from "react-webcam";
+import Loader from '@/components/Loader'
 import Link from "next/link";
 type InterviewDetails = {
   mockId: string;
@@ -62,7 +63,7 @@ const page = () => {
   }
 
   if (!interviewDetails) {
-    return <div>Loading...</div>;
+    return <div><Loader/></div>;
   }
 
   return (

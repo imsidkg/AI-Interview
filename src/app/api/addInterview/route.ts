@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, mockId: newRecord.mockId }, { status: 200 });
   } catch (error:any) {
+    console.log(process.env.NEXT_PUBLIC_GEMINI_API_KEY!)
     console.error('Detailed error in /api/addInterview:', error);
     return NextResponse.json({ error: 'Error processing interview request', details: error.message }, { status: 500 });
   }

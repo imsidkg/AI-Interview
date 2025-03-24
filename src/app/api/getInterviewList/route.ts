@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
       .from(MockInterview)
       .where(eq(MockInterview.createdBy, email))
       .orderBy(desc(MockInterview.id));
+      console.log(result)
 
     return NextResponse.json(result);
   } catch (error:any) {

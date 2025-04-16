@@ -35,6 +35,22 @@ const QuestionSection = ({ mockInterviewQuestion, activeQuestionIndex }: Props) 
         {mockInterviewQuestion[activeQuestionIndex]?.question || 'No question available'}
       </h2>
 
+      <button 
+        onClick={() => {
+          if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(
+              mockInterviewQuestion[activeQuestionIndex]?.question || 'No question available'
+            );
+            window.speechSynthesis.speak(utterance);
+          } else {
+            alert('Text-to-speech is not supported in your browser');
+          }
+        }}
+        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md mb-5"
+      >
+        Listen to Question
+      </button>
+
       {/* Note section */}
       <div className="border rounded-lg p-5 bg-white mt-20">
         <h2 className="flex gap-2 items-center text-primary">

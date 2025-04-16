@@ -44,6 +44,8 @@ const RecordAnswerSection: React.FC<Props> = ({
   const [userAnswer, setUserAnswer] = useState("");
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(180); // 3 minutes in seconds
+  const [timerActive, setTimerActive] = useState(false);
   const {
     error,
     interimResult,
@@ -79,6 +81,34 @@ const RecordAnswerSection: React.FC<Props> = ({
     }
   }, [user]);
 
+  // Timer countdown effect
+  useEffect(() => {
+    if (!timerActive || timeLeft <= 0) return;
+
+    const timerId = setInterval(() => {
+      setTimeLeft(prevTime => {
+        if (prevTime <= 1) {
+          clearInterval(timerId);
+          setTimerActive(false);
+          // Auto-save when time runs out
+          if (userAnswer.length > 0) {
+            UpdateUserAnswer();
+          }
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timerId);
+  }, [timerActive, timeLeft]);
+
+  // Reset timer when question changes
+  useEffect(() => {
+    setTimeLeft(180);
+    setTimerActive(false);
+  }, [activeQuestionIndex]);
+
   const handleUserMediaError = (error: string | DOMException) => {
     if (typeof error === "string") {
       console.log("Webcam access error", error);
@@ -92,10 +122,12 @@ const RecordAnswerSection: React.FC<Props> = ({
   const StartStopRecording = async () => {
     if (isRecording) {
       stopSpeechToText();
+      setTimerActive(false);
     } else {
       try {
         console.log("Starting speech-to-text recording...");
-        startSpeechToText();
+        await startSpeechToText();
+        setTimerActive(true);
       } catch (error) {
         console.error("Speech recognition start error:", error);
         toast("Recording is already in progress.");
@@ -190,7 +222,12 @@ const RecordAnswerSection: React.FC<Props> = ({
 
   return (
     <div className="flex justify-center items-center flex-col">
-      <div className="flex flex-col my-20 justify-center items-center bg-black rounded-lg p-5">
+      <div className="flex flex-col justify-center items-center mb-5">
+        <div className="text-2xl font-bold bg-blue-500 text-white px-4 py-2 rounded-lg">
+          Time: {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
+        </div>
+      </div>
+      <div className="flex flex-col my-10 justify-center items-center bg-black rounded-lg p-5">
         <Webcam
           audio={false}
           width={540}
